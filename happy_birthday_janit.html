@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, Janit! 💚</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            400: '#34d399',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                            950: '#022c22',
+                        },
+                        navy: {
+                            800: '#0f172a',
+                            900: '#0b132b',
+                            950: '#050a18',
+                        },
+                        gold: {
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308',
+                        },
+                        cream: '#fffdf9',
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        cursive: ['Dancing Script', 'cursive'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Canvas overlay */
+        #fx-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* Glassmorphism effects */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .glass-card-dark {
+            background: rgba(6, 78, 59, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+        }
+
+        /* Candle Flame Animations */
+        .flame {
+            width: 14px;
+            height: 24px;
+            background: linear-gradient(to bottom, #fff, #fef08a, #f97316);
+            border-radius: 50% 50% 35% 35%;
+            margin: 0 auto;
+            box-shadow: 0 0 15px #facc15, 0 0 25px #f97316;
+            animation: flicker 0.6s infinite alternate ease-in-out;
+            transform-origin: center bottom;
+            cursor: pointer;
+        }
+
+        @keyframes flicker {
+            0% { transform: scale(1) rotate(-2deg); opacity: 0.95; }
+            50% { transform: scale(1.08) rotate(3deg); opacity: 1; }
+            100% { transform: scale(0.92) rotate(-1deg); opacity: 0.85; }
+        }
+
+        /* Smoke effect after blown out */
+        .smoke {
+            width: 8px;
+            height: 8px;
+            background: rgba(200, 200, 200, 0.6);
+            border-radius: 50%;
+            margin: 0 auto;
+            animation: rise 1.5s forwards ease-out;
+        }
+
+        @keyframes rise {
+            0% { opacity: 0.8; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-35px) scale(3); }
+        }
+
+        /* Envelope animation */
+        .clip-path-triangle {
+            clip-path: polygon(0 0, 50% 55%, 100% 0, 100% 100%, 0 100%);
+        }
+
+        /* Hover animations */
+        .hover-lift {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-8px) scale(1.02);
+        }
+
+        /* Smooth Glow */
+        .glow-gold {
+            box-shadow: 0 0 25px rgba(234, 179, 8, 0.35);
+        }
+
+        /* Floating Audio Prompt Banner Animation */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(52, 211, 153, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(250, 204, 21, 0.7); }
+        }
+        .audio-hint-glow {
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-cream text-emerald-950 font-sans antialiased overflow-x-hidden selection:bg-emerald-200 selection:text-emerald-900">
+
+    <!-- =========================================================================
+         MP3 AUDIO PLAYER SETUP
+         ------------------------------------------------------------------------
+         REPLACE 'your-song.mp3' WITH YOUR DIRECT AUDIO FILE PATH OR MP3 URL.
+         Examples:
+         - Local file: src="your-song.mp3" or src="music/happy_birthday.mp3"
+         - Online URL: src="https://example.com/romantic_song.mp3"
+         ========================================================================= -->
+    <audio id="bgMusic" loop preload="auto" crossorigin="anonymous" src="janitbday.mp3"></audio>
+
+    <!-- Canvas for Floating Hearts, Petals, Confetti & Mouse Trail -->
+    <canvas id="fx-canvas"></canvas>
+
+    <!-- Floating Sound Control Bar -->
+    <div class="fixed top-5 right-5 z-40 flex items-center gap-2">
+        <button id="sound-toggle" onclick="toggleMusic(true)" class="glass-card hover:bg-white text-emerald-800 p-3 rounded-full shadow-lg transition-all flex items-center gap-2 px-4 group border border-emerald-200">
+            <i id="sound-icon" class="fa-solid fa-music text-emerald-600 text-lg group-hover:scale-110 transition-transform"></i>
+            <span id="sound-text" class="text-xs font-semibold tracking-wider uppercase text-emerald-800">Play Music</span>
+        </button>
+    </div>
+
+    <!-- Autoplay Hint Banner (Shown if browser blocks initial sound playback) -->
+    <div id="audio-prompt-banner" onclick="startAudioExplicitly()" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 glass-card px-6 py-3 rounded-full border border-gold-400 cursor-pointer audio-hint-glow flex items-center gap-3 transition-all duration-500 hover:scale-105 shadow-xl">
+        <i class="fa-solid fa-volume-high text-gold-500 text-lg animate-bounce"></i>
+        <span class="text-xs sm:text-sm font-semibold text-emerald-900">Tap anywhere to play background music! 🎵</span>
+    </div>
+
+    <!-- HERO SECTION -->
+    <section class="min-h-screen relative flex items-center justify-center pt-12 pb-20 px-4 overflow-hidden bg-gradient-to-b from-emerald-50/60 via-cream to-emerald-50/30">
+        
+        <!-- Ambient Decorative Circles -->
+        <div class="absolute -top-24 -left-24 w-96 h-96 bg-emerald-200/40 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute top-1/2 -right-24 w-96 h-96 bg-gold-300/30 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100/80 border border-emerald-200 text-emerald-800 text-sm font-medium mb-6 shadow-sm animate-bounce">
+                <i class="fa-solid fa-sparkles text-gold-500"></i>
+                <span>Today is all about you!</span>
+                <i class="fa-solid fa-heart text-emerald-600"></i>
+            </div>
+
+            <h1 class="text-5xl sm:text-7xl md:text-8xl font-serif font-semibold text-emerald-950 tracking-tight leading-tight mb-4">
+                Happy Birthday, <br class="sm:hidden"/>
+                <span class="font-cursive text-emerald-600 font-bold drop-shadow-sm px-2">My Love! 💚</span>
+            </h1>
+
+            <p class="text-lg sm:text-xl text-emerald-800/80 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
+                To the most gorgeous, kind, and radiant soul in my world. Here is a little interactive corner created with infinite love, just for you.
+            </p>
+
+            <!-- Buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <button onclick="triggerWish()" class="w-full sm:w-auto px-8 py-4 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold shadow-lg shadow-emerald-700/30 hover:shadow-xl transition-all hover:-translate-y-0.5 flex items-center justify-center gap-3 group text-lg">
+                    <i class="fa-solid fa-wand-magic-sparkles text-gold-300 group-hover:rotate-12 transition-transform"></i>
+                    <span>Wish ka rito nhakshie!</span>
+                </button>
+                <a href="#cake-section" class="w-full sm:w-auto px-8 py-4 rounded-full glass-card hover:bg-white text-emerald-800 font-semibold shadow-md transition-all flex items-center justify-center gap-2 border border-emerald-200">
+                    <span>blow the candles na</span>
+                    <i class="fa-solid fa-arrow-down text-emerald-600"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: INTERACTIVE BIRTHDAY CAKE -->
+    <section id="cake-section" class="py-24 px-4 bg-gradient-to-b from-emerald-50/30 to-cream relative overflow-hidden">
+        <div class="max-w-4xl mx-auto text-center">
+            
+            <span class="text-emerald-700 font-semibold tracking-wider text-xs uppercase mb-2 block">Hapi bertde huhuu sana magkita na tayo</span>
+            <h2 class="text-3xl sm:text-5xl font-serif text-emerald-950 font-bold mb-3">Blow Your Birthday Candles 🎂</h2>
+            <p class="text-emerald-800/70 mb-8 max-w-md mx-auto">enable mo lovey then blow mo</p>
+
+            <!-- Mic Blow Control Button -->
+            <button id="mic-btn" onclick="toggleMicrophoneBlow()" class="mb-8 px-5 py-2.5 rounded-full bg-emerald-100 hover:bg-emerald-200 text-emerald-800 text-xs font-semibold tracking-wider uppercase transition-all inline-flex items-center gap-2 border border-emerald-300 shadow-sm">
+                <i class="fa-solid fa-microphone text-emerald-600"></i>
+                <span id="mic-btn-text">Enable Microphone Blow</span>
+            </button>
+
+            <!-- Virtual Cake -->
+            <div class="relative w-72 sm:w-80 mx-auto pt-16 pb-6">
+                <!-- Candles Container -->
+                <div class="flex justify-center gap-6 mb-2 relative z-20">
+                    <!-- Candle 1 -->
+                    <div class="flex flex-col items-center">
+                        <div id="flame-1" onclick="blowCandle(1)" class="flame" title="Click to blow out!"></div>
+                        <div id="smoke-1" class="hidden"></div>
+                        <div class="w-4 h-12 bg-gradient-to-r from-gold-300 via-gold-400 to-amber-500 rounded-t-sm shadow-sm border-t border-white/50"></div>
+                    </div>
+                    <!-- Candle 2 -->
+                    <div class="flex flex-col items-center -mt-2">
+                        <div id="flame-2" onclick="blowCandle(2)" class="flame" title="Click to blow out!"></div>
+                        <div id="smoke-2" class="hidden"></div>
+                        <div class="w-4 h-14 bg-gradient-to-r from-emerald-300 via-emerald-400 to-emerald-500 rounded-t-sm shadow-sm border-t border-white/50"></div>
+                    </div>
+                    <!-- Candle 3 -->
+                    <div class="flex flex-col items-center">
+                        <div id="flame-3" onclick="blowCandle(3)" class="flame" title="Click to blow out!"></div>
+                        <div id="smoke-3" class="hidden"></div>
+                        <div class="w-4 h-12 bg-gradient-to-r from-gold-300 via-gold-400 to-amber-500 rounded-t-sm shadow-sm border-t border-white/50"></div>
+                    </div>
+                </div>
+
+                <!-- Tier 1 -->
+                <div class="relative w-48 h-20 mx-auto bg-gradient-to-r from-emerald-100 via-white to-emerald-100 rounded-t-2xl shadow-md border-b-4 border-emerald-200/80 flex items-center justify-center">
+                    <div class="absolute inset-x-0 top-0 h-4 bg-emerald-200/60 rounded-t-2xl flex justify-around items-center px-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span class="w-2 h-2 rounded-full bg-gold-400"></span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span class="w-2 h-2 rounded-full bg-gold-400"></span>
+                    </div>
+                    <span class="font-cursive text-2xl text-emerald-800 font-bold tracking-wide mt-2">Janit</span>
+                </div>
+
+                <!-- Tier 2 -->
+                <div class="relative w-64 h-24 mx-auto bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-900 rounded-t-3xl shadow-xl flex items-center justify-center">
+                    <div class="absolute inset-x-0 top-0 h-5 bg-gold-400/90 rounded-t-3xl flex justify-around items-center px-4">
+                        <i class="fa-solid fa-heart text-[10px] text-emerald-950"></i>
+                        <i class="fa-solid fa-sparkles text-[10px] text-emerald-950"></i>
+                        <i class="fa-solid fa-heart text-[10px] text-emerald-950"></i>
+                        <i class="fa-solid fa-sparkles text-[10px] text-emerald-950"></i>
+                        <i class="fa-solid fa-heart text-[10px] text-emerald-950"></i>
+                    </div>
+                    <div class="text-gold-300 font-serif text-sm tracking-widest uppercase font-semibold mt-2">
+                        ✦ Birthday Queen ✦
+                    </div>
+                </div>
+
+                <!-- Cake Plate -->
+                <div class="w-80 h-6 mx-auto bg-gradient-to-r from-gray-200 via-white to-gray-300 rounded-full shadow-2xl border-b-2 border-gray-400"></div>
+            </div>
+
+            <!-- Wish Granted Banner Message -->
+            <div id="cake-wish-msg" class="opacity-0 transition-opacity duration-700 max-w-md mx-auto mt-6 glass-card p-4 rounded-2xl border border-gold-300 glow-gold">
+                <p class="text-emerald-950 font-serif font-bold text-lg">✨ Wish Granted Janit ko! ✨</p>
+                <p class="text-emerald-800 text-sm mt-1">May every single wish in your heart come true today and always!</p>
+            </div>
+            
+            <button onclick="relightCandles()" class="mt-4 text-xs font-semibold text-emerald-700 hover:text-emerald-950 underline underline-offset-4">
+                Relight Candles
+            </button>
+        </div>
+    </section>
+
+    <!-- SECTION 3: POLAROID MEMORY CARDS -->
+    <section class="py-20 px-4 bg-cream relative">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="text-emerald-600 font-semibold tracking-wider text-xs uppercase mb-2 block">Reasons Why I Love You</span>
+                <h2 class="text-3xl sm:text-5xl font-serif text-emerald-950 font-bold">Little Reminders of You 💚</h2>
+                <p class="text-emerald-800/70 mt-2 max-w-lg mx-auto">Hover or tap on each Polaroid memory card to discover a sweet love note.</p>
+            </div>
+
+            <!-- Memory Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Card 1 -->
+                <div class="group perspective">
+                    <div class="hover-lift glass-card p-5 rounded-2xl shadow-lg border border-emerald-100 bg-white transition-all duration-300">
+                        <div class="w-full h-56 bg-gradient-to-tr from-emerald-100 via-emerald-50 to-amber-50 rounded-xl mb-4 overflow-hidden relative flex items-center justify-center border border-emerald-100">
+                            <img src="https://placehold.co/600x400/047857/ffffff?text=Janit's+Smile" alt="Memory Photo 1" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x400/047857/ffffff?text=Memory+Photo';">
+                            <span class="absolute bottom-3 right-3 text-xs font-semibold text-emerald-800 bg-white/90 px-2.5 py-1 rounded-md shadow-sm">Reason #1</span>
+                        </div>
+                        <h3 class="font-serif font-bold text-xl text-emerald-950 mb-2">Your Radiant Smile</h3>
+                        <p class="text-emerald-800/80 text-sm leading-relaxed">
+                            The way your entire face lights up whenever you laugh has the power to instantly brighten even my darkest days.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="group perspective">
+                    <div class="hover-lift glass-card p-5 rounded-2xl shadow-lg border border-emerald-100 bg-white transition-all duration-300">
+                        <div class="w-full h-56 bg-gradient-to-tr from-amber-50 via-emerald-50 to-emerald-100 rounded-xl mb-4 overflow-hidden relative flex items-center justify-center border border-emerald-100">
+                            <img src="https://placehold.co/600x400/065f46/ffffff?text=Kind+Heart" alt="Memory Photo 2" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x400/065f46/ffffff?text=Memory+Photo';">
+                            <span class="absolute bottom-3 right-3 text-xs font-semibold text-emerald-800 bg-white/90 px-2.5 py-1 rounded-md shadow-sm">Reason #2</span>
+                        </div>
+                        <h3 class="font-serif font-bold text-xl text-emerald-950 mb-2">Your Kind & Gentle Heart</h3>
+                        <p class="text-emerald-800/80 text-sm leading-relaxed">
+                            Your empathy, warm spirit, and how deeply you care for the people around you inspire me every single day.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="group perspective">
+                    <div class="hover-lift glass-card p-5 rounded-2xl shadow-lg border border-emerald-100 bg-white transition-all duration-300">
+                        <div class="w-full h-56 bg-gradient-to-tr from-emerald-50 via-amber-50 to-emerald-100 rounded-xl mb-4 overflow-hidden relative flex items-center justify-center border border-emerald-100">
+                            <img src="https://placehold.co/600x400/0b132b/ffffff?text=Endless+Conversations" alt="Memory Photo 3" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x400/0b132b/ffffff?text=Memory+Photo';">
+                            <span class="absolute bottom-3 right-3 text-xs font-semibold text-emerald-800 bg-white/90 px-2.5 py-1 rounded-md shadow-sm">Reason #3</span>
+                        </div>
+                        <h3 class="font-serif font-bold text-xl text-emerald-950 mb-2">Endless Conversations</h3>
+                        <p class="text-emerald-800/80 text-sm leading-relaxed">
+                            From late-night talks about everything and nothing to sharing silly jokes—time spent with you always flies by.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="group perspective">
+                    <div class="hover-lift glass-card p-5 rounded-2xl shadow-lg border border-emerald-100 bg-white transition-all duration-300">
+                        <div class="w-full h-56 bg-gradient-to-tr from-emerald-100 via-amber-50 to-emerald-50 rounded-xl mb-4 overflow-hidden relative flex items-center justify-center border border-emerald-100">
+                            <img src="https://placehold.co/600x400/047857/ffffff?text=Uniquely+You" alt="Memory Photo 4" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x400/047857/ffffff?text=Memory+Photo';">
+                            <span class="absolute bottom-3 right-3 text-xs font-semibold text-emerald-800 bg-white/90 px-2.5 py-1 rounded-md shadow-sm">Reason #4</span>
+                        </div>
+                        <h3 class="font-serif font-bold text-xl text-emerald-950 mb-2">You Are Uniquely You</h3>
+                        <p class="text-emerald-800/80 text-sm leading-relaxed">
+                            Your quirks, your passions, and your grace. There is nobody else in this world like Janit, and I adore that.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="group perspective">
+                    <div class="hover-lift glass-card p-5 rounded-2xl shadow-lg border border-emerald-100 bg-white transition-all duration-300">
+                        <div class="w-full h-56 bg-gradient-to-tr from-amber-50 via-emerald-100 to-emerald-50 rounded-xl mb-4 overflow-hidden relative flex items-center justify-center border border-emerald-100">
+                            <img src="https://placehold.co/600x400/065f46/ffffff?text=Safe+Place" alt="Memory Photo 5" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x400/065f46/ffffff?text=Memory+Photo';">
+                            <span class="absolute bottom-3 right-3 text-xs font-semibold text-emerald-800 bg-white/90 px-2.5 py-1 rounded-md shadow-sm">Reason #5</span>
+                        </div>
+                        <h3 class="font-serif font-bold text-xl text-emerald-950 mb-2">My Comfort & Safe Place</h3>
+                        <p class="text-emerald-800/80 text-sm leading-relaxed">
+                            Being with you feels like home. No matter where we are, your presence brings me total peace and happiness.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="group perspective">
+                    <div class="hover-lift glass-card p-5 rounded-2xl shadow-lg border border-emerald-100 bg-white transition-all duration-300">
+                        <div class="w-full h-56 bg-gradient-to-tr from-emerald-50 via-emerald-100 to-amber-50 rounded-xl mb-4 overflow-hidden relative flex items-center justify-center border border-emerald-100">
+                            <img src="https://placehold.co/600x400/0b132b/ffffff?text=Our+Future" alt="Memory Photo 6" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null; this.src='https://placehold.co/600x400/0b132b/ffffff?text=Memory+Photo';">
+                            <span class="absolute bottom-3 right-3 text-xs font-semibold text-emerald-800 bg-white/90 px-2.5 py-1 rounded-md shadow-sm">Reason #6</span>
+                        </div>
+                        <h3 class="font-serif font-bold text-xl text-emerald-950 mb-2">Our Bright Future</h3>
+                        <p class="text-emerald-800/80 text-sm leading-relaxed">
+                            I am so excited for every adventure, trip, milestone, and quiet moment we have yet to create together.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: SEALED LOVE LETTER ENVELOPE -->
+    <section class="py-20 px-4 bg-gradient-to-b from-cream via-emerald-50/50 to-emerald-100/40 relative">
+        <div class="max-w-3xl mx-auto text-center">
+            
+            <i class="fa-solid fa-envelope-open-text text-4xl text-emerald-700 mb-4 animate-pulse"></i>
+            <h2 class="text-3xl sm:text-4xl font-serif font-bold text-emerald-950 mb-3">A Sealed Letter For You</h2>
+            <p class="text-emerald-800/80 mb-8 max-w-md mx-auto">Click the wax-sealed envelope below to unseal a private birthday message written just for Janit.</p>
+
+            <!-- Envelope Container -->
+            <div onclick="openLetterModal()" class="cursor-pointer inline-block group relative">
+                <div class="w-72 sm:w-80 h-48 bg-emerald-900 rounded-2xl shadow-2xl relative overflow-hidden flex items-center justify-center border-2 border-gold-400 group-hover:scale-105 transition-transform duration-300">
+                    <!-- Envelope Flap Visual -->
+                    <div class="absolute top-0 inset-x-0 h-24 bg-emerald-950 clip-path-triangle origin-top transition-all"></div>
+                    <!-- Gold Wax Seal Icon -->
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-gold-500 via-gold-300 to-amber-400 flex items-center justify-center shadow-lg border-2 border-white text-emerald-950 z-10 group-hover:rotate-12 transition-transform">
+                        <i class="fa-solid fa-heart text-2xl text-emerald-950"></i>
+                    </div>
+                    <span class="absolute bottom-3 text-gold-300 text-xs tracking-widest uppercase font-semibold">Tap to Unseal 💌</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="py-10 text-center bg-navy-950 text-emerald-200/80 text-sm relative z-10">
+        <div class="max-w-md mx-auto px-4">
+            <p class="font-cursive text-2xl text-gold-300 mb-2">Happy Birthday Janit 💚</p>
+            <p class="text-xs text-emerald-400/70">I hope you enjoyed your day today and I'm sorry if my greeting is so late na, I love you!!</p>
+        </div>
+    </footer>
+
+    <!-- SECRET LOVE LETTER MODAL -->
+    <div id="letter-modal" class="fixed inset-0 z-50 bg-navy-950/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-500">
+        <div id="modal-card" class="bg-cream max-w-2xl w-full rounded-3xl p-6 sm:p-10 shadow-2xl border-2 border-gold-300 relative transform scale-95 transition-transform duration-500 max-h-[90vh] overflow-y-auto">
+            
+            <!-- Close Button -->
+            <button onclick="closeLetterModal()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-emerald-100 hover:bg-emerald-200 text-emerald-900 flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Letter Content Header -->
+            <div class="text-center mb-6">
+                <i class="fa-solid fa-heart text-3xl text-emerald-600 mb-2"></i>
+                <h3 class="text-2xl sm:text-3xl font-serif font-bold text-emerald-950">Dearest Janit,</h3>
+            </div>
+
+            <!-- Letter Body -->
+            <div class="space-y-4 font-sans text-emerald-950/90 leading-relaxed text-base sm:text-lg">
+                <p>
+                    Happy Birthday to the girl who fills my heart with so much warmth and happiness every single day. 
+                </p>
+                <p>
+                    On your special day, I just want to remind you how deeply loved and appreciated you truly are. You bring so much light into the lives of everyone around you with your gentle kindness, and beautiful smile.
+                </p>
+                <p>
+                    May this new year of your life bring you endless laughter, thrilling adventures, peace, and all the success you so richly deserve. I am beyond grateful to share this journey with you and celebrate another unforgettable birthday together.
+                </p>
+                <p class="font-cursive text-3xl text-emerald-700 pt-4 text-right">
+                    Forever & Always yours, <br/>
+                    <span class="text-gold-500 font-bold">With all my love 💚</span>
+                </p>
+            </div>
+
+            <!-- Modal Action -->
+            <div class="mt-8 text-center">
+                <button onclick="triggerWish(); closeLetterModal();" class="px-6 py-3 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-medium shadow-md transition-all">
+                    Send a Big Hug! ✨
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* =========================================================================
+         *  ROBUST AUDIO & AUTOPLAY HANDLER
+         * ========================================================================= */
+        const bgMusic = document.getElementById('bgMusic');
+        const audioPromptBanner = document.getElementById('audio-prompt-banner');
+        let isMusicPlaying = false;
+
+        // Safe play attempt returning a handled promise
+        function playAudio() {
+            if (!bgMusic) return Promise.resolve(false);
+            
+            // Catch play promise rejection internally to avoid UNHANDLEDREJECTION errors in browser console
+            return bgMusic.play().then(() => {
+                isMusicPlaying = true;
+                updateAudioUI(true);
+                hideAudioBanner();
+                return true;
+            }).catch(err => {
+                // User hasn't interacted with document yet or autoplay policy blocked audio
+                isMusicPlaying = false;
+                updateAudioUI(false);
+                showAudioBanner();
+                return false;
+            });
+        }
+
+        function pauseAudio() {
+            if (!bgMusic) return;
+            bgMusic.pause();
+            isMusicPlaying = false;
+            updateAudioUI(false);
+        }
+
+        function toggleMusic(isManualClick = false) {
+            if (isMusicPlaying) {
+                pauseAudio();
+            } else {
+                playAudio().then((success) => {
+                    if (!success && isManualClick) {
+                        alert("Note: Please make sure 'your-song.mp3' exists in the website directory or replace it with a valid MP3 file link.");
+                    }
+                });
+            }
+        }
+
+        function startAudioExplicitly() {
+            playAudio();
+        }
+
+        function hideAudioBanner() {
+            if (audioPromptBanner) {
+                audioPromptBanner.classList.add('opacity-0', 'pointer-events-none', 'translate-y-10');
+            }
+        }
+
+        function showAudioBanner() {
+            if (audioPromptBanner) {
+                audioPromptBanner.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-10');
+            }
+        }
+
+        function updateAudioUI(playing) {
+            const btnText = document.getElementById('sound-text');
+            const btnIcon = document.getElementById('sound-icon');
+            if (!btnText || !btnIcon) return;
+
+            if (playing) {
+                btnText.innerText = "Music Playing 🎶";
+                btnIcon.className = "fa-solid fa-music text-emerald-600 text-lg animate-spin";
+            } else {
+                btnText.innerText = "Play Music";
+                btnIcon.className = "fa-solid fa-volume-xmark text-emerald-600 text-lg";
+            }
+        }
+
+        // Add multi-event listener for immediate gesture unblock
+        function setupInteractionAutoplay() {
+            const handleFirstGesture = () => {
+                if (!isMusicPlaying) {
+                    playAudio().then((success) => {
+                        if (success) removeGestureListeners();
+                    });
+                } else {
+                    removeGestureListeners();
+                }
+            };
+
+            function removeGestureListeners() {
+                window.removeEventListener('click', handleFirstGesture);
+                window.removeEventListener('touchstart', handleFirstGesture);
+                window.removeEventListener('keydown', handleFirstGesture);
+                window.removeEventListener('pointerdown', handleFirstGesture);
+            }
+
+            window.addEventListener('click', handleFirstGesture);
+            window.addEventListener('touchstart', handleFirstGesture);
+            window.addEventListener('keydown', handleFirstGesture);
+            window.addEventListener('pointerdown', handleFirstGesture);
+
+            // Attempt initial play safely on page load
+            playAudio();
+        }
+
+        /* ----------------------------------------------------
+         *  BIRTHDAY CAKE & CANDLE BLOWING LOGIC
+         * ---------------------------------------------------- */
+        let activeCandles = [true, true, true];
+
+        function blowCandle(id) {
+            if (!activeCandles[id - 1]) return;
+            activeCandles[id - 1] = false;
+
+            const flame = document.getElementById(`flame-${id}`);
+            const smoke = document.getElementById(`smoke-${id}`);
+
+            if (flame) flame.style.display = 'none';
+            if (smoke) smoke.className = 'smoke';
+
+            // Check if all candles blown out
+            if (activeCandles.every(c => c === false)) {
+                setTimeout(() => {
+                    const wishMsg = document.getElementById('cake-wish-msg');
+                    if (wishMsg) wishMsg.classList.remove('opacity-0');
+                    triggerWish(); // Launch confetti
+                }, 400);
+            }
+        }
+
+        function blowAllCandles() {
+            blowCandle(1);
+            blowCandle(2);
+            blowCandle(3);
+        }
+
+        function relightCandles() {
+            activeCandles = [true, true, true];
+            for (let i = 1; i <= 3; i++) {
+                const flame = document.getElementById(`flame-${i}`);
+                const smoke = document.getElementById(`smoke-${i}`);
+                if (flame) flame.style.display = 'block';
+                if (smoke) smoke.className = 'hidden';
+            }
+            const wishMsg = document.getElementById('cake-wish-msg');
+            if (wishMsg) wishMsg.classList.add('opacity-0');
+        }
+
+        // Microphone Blowing Detection
+        let micStream = null;
+        let isMicListening = false;
+
+        async function toggleMicrophoneBlow() {
+            const btnText = document.getElementById('mic-btn-text');
+            if (isMicListening) {
+                if (micStream) micStream.getTracks().forEach(track => track.stop());
+                isMicListening = false;
+                if (btnText) btnText.innerText = "Enable Microphone Blow";
+                return;
+            }
+
+            try {
+                micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const mediaStreamSource = audioContext.createMediaStreamSource(micStream);
+                const analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                mediaStreamSource.connect(analyser);
+
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                isMicListening = true;
+                if (btnText) btnText.innerText = "Listening... Blow into Mic! 🌬️";
+
+                function checkBlow() {
+                    if (!isMicListening) return;
+                    analyser.getByteFrequencyData(dataArray);
+                    
+                    let sum = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        sum += dataArray[i];
+                    }
+                    const average = sum / bufferLength;
+
+                    // Threshold check for blowing sound
+                    if (average > 45) {
+                        blowAllCandles();
+                    }
+                    requestAnimationFrame(checkBlow);
+                }
+                checkBlow();
+            } catch (err) {
+                console.log("Microphone access denied or unsupported:", err);
+                alert("Microphone access could not be enabled. You can click the candles to blow them out!");
+            }
+        }
+
+        /* ----------------------------------------------------
+         *  SECRET LOVE LETTER MODAL
+         * ---------------------------------------------------- */
+        function openLetterModal() {
+            const modal = document.getElementById('letter-modal');
+            const card = document.getElementById('modal-card');
+            if (modal && card) {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+            }
+            triggerWish();
+        }
+
+        function closeLetterModal() {
+            const modal = document.getElementById('letter-modal');
+            const card = document.getElementById('modal-card');
+            if (modal && card) {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                card.classList.remove('scale-100');
+                card.classList.add('scale-95');
+            }
+        }
+
+        /* ----------------------------------------------------
+         *  CANVAS ENGINE (Confetti, Fireworks, Petals, Mouse Trail)
+         * ---------------------------------------------------- */
+        const canvas = document.getElementById('fx-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const particles = [];
+        const mouseTrail = [];
+
+        // Mouse trail track
+        window.addEventListener('mousemove', (e) => {
+            for (let i = 0; i < 2; i++) {
+                mouseTrail.push({
+                    x: e.clientX,
+                    y: e.clientY,
+                    vx: (Math.random() - 0.5) * 1.5,
+                    vy: (Math.random() - 0.5) * 1.5,
+                    size: Math.random() * 5 + 2,
+                    color: Math.random() > 0.5 ? '#34d399' : '#facc15',
+                    alpha: 1,
+                    life: 1
+                });
+            }
+        });
+
+        // Floating ambient petals/hearts
+        for (let i = 0; i < 25; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.8,
+                vy: Math.random() * 0.8 + 0.3,
+                size: Math.random() * 10 + 6,
+                type: Math.random() > 0.4 ? 'petal' : 'heart',
+                color: Math.random() > 0.5 ? 'rgba(52, 211, 153, 0.4)' : 'rgba(250, 204, 21, 0.4)',
+                rotation: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() - 0.5) * 0.02
+            });
+        }
+
+        function triggerWish() {
+            // Burst of fireworks and confetti
+            const colors = ['#34d399', '#059669', '#facc15', '#f43f5e', '#ffffff'];
+            
+            for (let i = 0; i < 120; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 12 + 4;
+                particles.push({
+                    x: width / 2,
+                    y: height / 2,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - 2,
+                    size: Math.random() * 7 + 3,
+                    type: 'confetti',
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    alpha: 1,
+                    decay: Math.random() * 0.015 + 0.008,
+                    gravity: 0.15
+                });
+            }
+        }
+
+        function animateFX() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Render Ambient & Confetti Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+
+                if (p.type === 'confetti') {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += p.gravity;
+                    p.alpha -= p.decay;
+
+                    ctx.save();
+                    ctx.globalAlpha = Math.max(0, p.alpha);
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+
+                    if (p.alpha <= 0) particles.splice(i, 1);
+                } else {
+                    // Floating ambient elements
+                    p.y += p.vy;
+                    p.x += p.vx;
+                    p.rotation += p.rotSpeed;
+
+                    if (p.y > height) p.y = -20;
+                    if (p.x > width) p.x = 0;
+                    if (p.x < 0) p.x = width;
+
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rotation);
+                    ctx.fillStyle = p.color;
+
+                    if (p.type === 'heart') {
+                        ctx.font = `${p.size}px serif`;
+                        ctx.fillText('💚', 0, 0);
+                    } else {
+                        // Petal shape
+                        ctx.beginPath();
+                        ctx.ellipse(0, 0, p.size, p.size / 2, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                }
+            }
+
+            // Render Cursor Trail
+            for (let i = mouseTrail.length - 1; i >= 0; i--) {
+                const t = mouseTrail[i];
+                t.x += t.vx;
+                t.y += t.vy;
+                t.life -= 0.03;
+
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, t.life);
+                ctx.fillStyle = t.color;
+                ctx.beginPath();
+                ctx.arc(t.x, t.y, t.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+
+                if (t.life <= 0) mouseTrail.splice(i, 1);
+            }
+
+            requestAnimationFrame(animateFX);
+        }
+
+        window.onload = function() {
+            animateFX();
+            setupInteractionAutoplay();
+        };
+    </script>
+</body>
+</html>
